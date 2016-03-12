@@ -65,6 +65,7 @@
     var label = selected.textContent;
     app.getForecast(key, label);
     app.selectedCities.push({key: key, label: label});
+    app.saveSelectedCities();
     app.toggleAddDialog(false);
   });
 
@@ -204,6 +205,12 @@
       {key: initialWeatherForecast.key, label: initialWeatherForecast.label}
     ];
     app.saveSelectedCities();
+  }
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker
+             .register('./service-worker.js')
+             .then(function() { console.log('Service Worker Registered'); });
   }
 
 
