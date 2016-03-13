@@ -1,0 +1,9 @@
+{
+  "firebase": "wtm-weatherapp",
+  "public": "work",
+  "ignore": [
+    "firebase.json",
+    "**/.*",
+    "**/node_modules/**"
+  ]
+}

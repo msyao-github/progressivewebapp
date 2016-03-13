@@ -30,6 +30,7 @@
   };
 
   var app = {
+    hasRequestPending: false,
     isLoading: true,
     visibleCards: {},
     selectedCities: [],
@@ -42,10 +43,10 @@
 
 
   /*****************************************************************************
-  *
-  * Event listeners for UI elements
-  *
-  ****************************************************************************/
+   *
+   * Event listeners for UI elements
+   *
+   ****************************************************************************/
 
   document.getElementById('butRefresh').addEventListener('click', function() {
     // Refresh all of the forecasts
@@ -76,10 +77,10 @@
 
 
   /*****************************************************************************
-  *
-  * Methods to update/refresh the UI
-  *
-  ****************************************************************************/
+   *
+   * Methods to update/refresh the UI
+   *
+   ****************************************************************************/
 
   // Toggles the visibility of the add new city dialog.
   app.toggleAddDialog = function(visible) {
@@ -104,20 +105,20 @@
     }
     card.querySelector('.description').textContent = data.currently.summary;
     card.querySelector('.date').textContent =
-    new Date(data.currently.time * 1000);
+      new Date(data.currently.time * 1000);
     card.querySelector('.current .icon').classList.add(data.currently.icon);
     card.querySelector('.current .temperature .value').textContent =
-    Math.round(data.currently.temperature);
+      Math.round(data.currently.temperature);
     card.querySelector('.current .feels-like .value').textContent =
-    Math.round(data.currently.apparentTemperature);
+      Math.round(data.currently.apparentTemperature);
     card.querySelector('.current .precip').textContent =
-    Math.round(data.currently.precipProbability * 100) + '%';
+      Math.round(data.currently.precipProbability * 100) + '%';
     card.querySelector('.current .humidity').textContent =
-    Math.round(data.currently.humidity * 100) + '%';
+      Math.round(data.currently.humidity * 100) + '%';
     card.querySelector('.current .wind .value').textContent =
-    Math.round(data.currently.windSpeed);
+      Math.round(data.currently.windSpeed);
     card.querySelector('.current .wind .direction').textContent =
-    data.currently.windBearing;
+      data.currently.windBearing;
     var nextDays = card.querySelectorAll('.future .oneday');
     var today = new Date();
     today = today.getDay();
@@ -126,12 +127,12 @@
       var daily = data.daily.data[i];
       if (daily && nextDay) {
         nextDay.querySelector('.date').textContent =
-        app.daysOfWeek[(i + today) % 7];
+          app.daysOfWeek[(i + today) % 7];
         nextDay.querySelector('.icon').classList.add(daily.icon);
         nextDay.querySelector('.temp-high .value').textContent =
-        Math.round(daily.temperatureMax);
+          Math.round(daily.temperatureMax);
         nextDay.querySelector('.temp-low .value').textContent =
-        Math.round(daily.temperatureMin);
+          Math.round(daily.temperatureMin);
       }
     }
     if (app.isLoading) {
@@ -143,10 +144,10 @@
 
 
   /*****************************************************************************
-  *
-  * Methods for dealing with the model
-  *
-  ****************************************************************************/
+   *
+   * Methods for dealing with the model
+   *
+   ****************************************************************************/
 
   // Gets a forecast for a specific city and update the card with the data
   app.getForecast = function(key, label) {
@@ -169,6 +170,7 @@
       });
     }
     // Make the XHR to get the data, then update the card
+    app.hasRequestPending = true;
     var request = new XMLHttpRequest();
     request.onreadystatechange = function() {
       if (request.readyState === XMLHttpRequest.DONE) {
@@ -176,6 +178,7 @@
           var response = JSON.parse(request.response);
           response.key = key;
           response.label = label;
+          app.hasRequestPending = false;
           app.updateForecastCard(response);
         }
       }
@@ -191,12 +194,13 @@
       app.getForecast(key);
     });
   };
-  // Save list of cities to localStorage.
+
+  // Save list of cities to localStorage, see note below about localStorage.
   app.saveSelectedCities = function() {
     var selectedCities = JSON.stringify(app.selectedCities);
+    // IMPORTANT: See notes about use of localStorage.
     localStorage.selectedCities = selectedCities;
   };
-
 
   /************************************************************************
    *
@@ -223,11 +227,9 @@
     app.saveSelectedCities();
   }
 
-  if ('serviceWorker' in navigator) {
+  if('serviceWorker' in navigator) {
     navigator.serviceWorker
              .register('./service-worker.js')
              .then(function() { console.log('Service Worker Registered'); });
   }
-
-
 })();
