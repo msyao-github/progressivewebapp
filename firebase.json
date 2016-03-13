@@ -1,5 +1,5 @@
 {
-  "firebase": "wtm-weatherapp",
+  "firebase": "pweatherapp",
   "public": "work",
   "ignore": [
     "firebase.json",
